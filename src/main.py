@@ -3,7 +3,7 @@ import json
 from fastapi import FastAPI
 from sse_starlette.sse import EventSourceResponse
 
-from src.schemas import ChatRequest
+from src.schemas import ChatRequest,UserContext
 from src.safety_guard import safety_check
 from src.classifier import IntentClassifier
 from src.router import AgentRouter
@@ -48,9 +48,28 @@ async def chat(request: ChatRequest):
 
             history = memory_store.get_history(request.session_id)
 
+            incoming_context = request.user_context.model_dump()
+
+            if incoming_context.get("portfolio"):
+                memory_store.save_user_context(request.session_id, incoming_context)
+            else:
+                saved_context = memory_store.get_saved_user_context(request.session_id)
+                if saved_context:
+                    request.user_context = UserContext(**saved_context)
+
+            # classification = await asyncio.to_thread(
+            #     classifier.classify,
+            #     request.query,
+            #     history,
+            # )
+            resolved_query = memory_store.resolve_follow_up(
+                request.session_id,
+                request.query,
+            )
+
             classification = await asyncio.to_thread(
                 classifier.classify,
-                request.query,
+                resolved_query,
                 history,
             )
 
@@ -67,11 +86,11 @@ async def chat(request: ChatRequest):
             result = await asyncio.wait_for(
                 asyncio.to_thread(
                     router.route,
-                    request.query,
+                    resolved_query,
                     request.user_context,
                     classification,
                 ),
-                timeout=10,
+                timeout=60,
             )
 
             memory_store.add_turn(request.session_id, "user", request.query)
