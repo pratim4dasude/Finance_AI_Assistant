@@ -253,14 +253,51 @@ from src.schemas import ClassificationResult
 
 
 SYSTEM_PROMPT = """
-You are the intent classifier for Valura AI.
+You are the intent classifier for Valura AI, an agentic AI wealth-management microservice.
 
 Return ONLY valid JSON. No markdown. No explanation.
 
-Allowed agents:
-portfolio_health, market_research, investment_strategy, financial_planning,
-financial_calculator, risk_assessment, product_recommendation,
-predictive_analysis, customer_support, general_query
+Schema:
+{
+  "intent": "string",
+  "agent": "portfolio_health | market_research | investment_strategy | financial_planning | financial_calculator | risk_assessment | product_recommendation | predictive_analysis | customer_support | general_query",
+  "entities": {
+    "tickers": [],
+    "amount": null,
+    "currency": null,
+    "rate": null,
+    "period_years": null,
+    "frequency": null,
+    "horizon": null,
+    "time_period": null,
+    "topics": [],
+    "sectors": [],
+    "index": null,
+    "action": null,
+    "goal": null
+  },
+  "safety_verdict": "safe | caution | harmful",
+  "confidence": 0.0
+}
+
+Routing:
+- portfolio_health: portfolio review, holdings summary, diversification, concentration, benchmark comparison
+- market_research: stock/company/sector/market/news/price questions
+- investment_strategy: buy/sell/hold/rebalance/hedge/allocation advice
+- financial_planning: retirement, house, education, FIRE, savings goals
+- financial_calculator: deterministic math like CAGR, SIP, mortgage, tax, FX, future value
+- risk_assessment: downside risk, beta, drawdown, recession stress test, exposure
+- product_recommendation: specific fund/ETF/product suggestions
+- predictive_analysis: forecast or future value prediction
+- customer_support: login, bank account, transaction history, app issues
+- general_query: greetings, definitions, educational finance explanations
+
+Hard rules:
+- If the query asks "should I rebalance", "rebalance my portfolio", "should I buy/sell/hold", or asks for next action/advice, agent MUST be "investment_strategy".
+- Do NOT route rebalancing questions to portfolio_health unless the user only asks for a health check or portfolio review.
+- If intent is "investment_strategy", agent MUST also be "investment_strategy".
+- Return only one agent.
+
 """
 
 
@@ -270,12 +307,75 @@ class IntentClassifier:
         api_key = os.getenv("OPENAI_API_KEY")
         self.client = OpenAI(api_key=api_key) if api_key else None
 
-    def classify(
-        self,
-        query: str,
-        history: List[Dict[str, str]] | None = None,
+    def _llm_classify(
+            self,
+            query: str,
+            history: List[Dict[str, str]] | None = None,
     ) -> ClassificationResult:
-        # For tests, deterministic rules are better than LLM randomness
+        messages = [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            }
+        ]
+
+        for turn in history or []:
+            role = turn.get("role", "user")
+            content = turn.get("content", "")
+            if role in ["user", "assistant"] and content:
+                messages.append({"role": role, "content": content})
+
+        messages.append({"role": "user", "content": query})
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            temperature=0,
+            max_tokens=500,
+        )
+
+        raw = response.choices[0].message.content.strip()
+
+        if raw.startswith("```"):
+            raw = raw.replace("```json", "").replace("```", "").strip()
+
+        data = json.loads(raw)
+
+        agent = data.get("agent", "general_query")
+        intent = data.get("intent", "general_query")
+        entities = data.get("entities", {})
+
+        q = query.lower()
+
+        if any(x in q for x in
+               ["should i rebalance", "rebalance my portfolio", "should i buy", "should i sell", "should i hold"]):
+            agent = "investment_strategy"
+            intent = "investment_strategy"
+            entities["action"] = "rebalance" if "rebalance" in q else entities.get("action")
+
+        return ClassificationResult(
+            intent=intent,
+            agent=agent,
+            entities=entities,
+            safety_verdict=data.get("safety_verdict", "safe"),
+            confidence=float(data.get("confidence", 0.7)),
+        )
+
+
+
+
+    def classify(
+            self,
+            query: str,
+            history: List[Dict[str, str]] | None = None,
+    ) -> ClassificationResult:
+
+        if self.client:
+            try:
+                return self._llm_classify(query, history)
+            except Exception as e:
+                print("LLM classifier failed, using fallback:", str(e))
+
         return self._fallback_classify(query)
 
     def _fallback_classify(self, query: str) -> ClassificationResult:

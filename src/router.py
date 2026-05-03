@@ -60,7 +60,9 @@ from src.agents.recommedation import RecommendationsAgent
 from src.agents.risk_analysis import RiskAnalysisAgent
 from src.agents.market_reaserch import MarketResearchAgent
 from src.agents.finance_calculator import FinancialCalculatorAgent
-
+from src.agents.general_query import GeneralQueryAgent
+from src.agents.predictive_analysis import PredictiveAnalysisAgent
+from src.agents.support import SupportAgent
 
 class AgentRouter:
     def __init__(self):
@@ -70,15 +72,17 @@ class AgentRouter:
             "risk_analysis": RiskAnalysisAgent(),
             "market_research": MarketResearchAgent(),
             "financial_calculator": FinancialCalculatorAgent(),
+            "general_query": GeneralQueryAgent(),
+            "predictive_analysis": PredictiveAnalysisAgent(),
+            "customer_support": SupportAgent(),
         }
 
         self.aliases = {
             "risk_assessment": "risk_analysis",
             "product_recommendation": "recommendations",
-            "customer_support": "support",
+            "customer_support": "customer_support",
             "financial_planning": "recommendations",
             "investment_strategy": "recommendations",
-            "general_query": "support",
         }
 
     def route(self, query, user_context, classification):
