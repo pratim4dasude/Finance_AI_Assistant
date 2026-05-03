@@ -10,9 +10,19 @@ The safety guard runs synchronously with no LLM call, so this test does NOT
 need mock_llm.
 """
 import pytest
+from src.safety_guard import safety_check
 
+def check(query: str):
+    result = safety_check(query)
 
-@pytest.mark.skip(reason="Stub — wire up your safety guard import below and remove this decorator")
+    class Verdict:
+        blocked = not result.allowed
+        message = result.response
+        category = result.category
+
+    return Verdict()
+
+# @pytest.mark.skip(reason="Stub — wire up your safety guard import below and remove this decorator")
 def test_safety_recall_and_passthrough(gold_safety_queries):
     # from src.safety import check  # noqa: ERA001
 
@@ -45,7 +55,7 @@ def test_safety_recall_and_passthrough(gold_safety_queries):
     )
 
 
-@pytest.mark.skip(reason="Stub — wire up your safety guard import below and remove this decorator")
+# @pytest.mark.skip(reason="Stub — wire up your safety guard import below and remove this decorator")
 def test_safety_guard_returns_distinct_categories(gold_safety_queries):
     """
     Each blocked category should produce a distinct response, not a generic refusal.
