@@ -47,16 +47,25 @@ class PortfolioHealthAgent:
                 },
             }
 
-        total_value = sum(float(h.get("market_value", 0)) for h in portfolio)
+        # total_value = sum(float(h.get("market_value", 0)) for h in portfolio)
+        total_value = sum(
+            float(h.get("market_value", 0) or (float(h.get("quantity", 0) or 0) * float(h.get("avg_price", 0) or 0)))
+            for h in portfolio
+        )
+
 
         positions = []
         for h in portfolio:
-            value = float(h.get("market_value", 0))
+            # value = float(h.get("market_value", 0))
+            value = float(h.get("market_value", 0) or (float(h.get("quantity", 0) or 0) * float(h.get("avg_price", 0) or 0)))
+
             pct = (value / total_value * 100) if total_value > 0 else 0
             positions.append(
                 {
-                    "ticker": h.get("ticker"),
-                    "name": h.get("name", h.get("ticker")),
+                    # "ticker": h.get("ticker"),
+                    # "name": h.get("name", h.get("ticker")),
+                    "ticker": h.get("ticker") or h.get("symbol"),
+                    "name": h.get("name", h.get("ticker") or h.get("symbol")),
                     "market_value": value,
                     "weight_pct": round(pct, 2),
                     "return_pct": h.get("return_pct"),
