@@ -2,17 +2,32 @@ from typing import Any, Dict, List, Optional, Literal
 from pydantic import BaseModel, Field
 
 
+# AgentName = Literal[
+#     "portfolio_health",
+#     "market_research",
+#     "investment_strategy",
+#     "financial_calculator",
+#     "risk_analysis",
+#     "recommendations",
+#     "predictive_analysis",
+#     "support",
+# ]
+
 AgentName = Literal[
     "portfolio_health",
     "market_research",
     "investment_strategy",
+    "financial_planning",
     "financial_calculator",
     "risk_analysis",
+    "risk_assessment",
     "recommendations",
+    "product_recommendation",
     "predictive_analysis",
     "support",
+    "customer_support",
+    "general_query",
 ]
-
 
 class UserContext(BaseModel):
     user_id: str
