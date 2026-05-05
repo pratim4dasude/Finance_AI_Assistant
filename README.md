@@ -227,53 +227,40 @@ It works as a structured system with safety checks, intent classification, and a
 Request → Safety Check → Memory Retrieval → Intent Classification
        → Agent Routing → Task Execution → LLM Response → SSE Stream
 ```
-
----
-
-## Project Structure
-
-```
-src/
-├── agents/                 # Modular domain-specific agents
-│   ├── portfolio_agent.py  # Portfolio health & composition
-│   ├── market_agent.py     # Market research & analysis
-│   └── risk_agent.py       # Risk scoring & evaluation
-│
-├── main.py                 # FastAPI entry point
-├── classifier.py           # LLM-based intent classification
-├── router.py               # Intent → agent routing logic
-├── safety_guard.py         # Safety validation & policy layer
-├── memory.py               # Session memory (SQLite)
-├── market_data.py          # External market data integration
-├── schemas.py              # Pydantic request/response models
-├── config.py               # App-wide configuration
-├── db_debug.py             # Database inspection utility
-│
-└── valura_memory.db        # Persistent session storage
-```
-
 ---
 
 ## Key Components
 
+ 
 ### 1. Safety Guard
 Validates every incoming query against financial safety policies before it enters the pipeline. Blocks harmful, speculative, or out-of-scope requests.
-
+ 
 ### 2. Session Memory (SQLite)
 Maintains conversation context across requests using a lightweight SQLite store. Enables coherent multi-turn interactions without a heavy vector DB.
-
+ 
 ### 3. Intent Classifier
 Uses an LLM to classify user intent into one of the supported financial domains — portfolio, market, risk, or general. Routes the query accordingly.
-
+ 
 ### 4. Agent Router
 Maps classified intents to the correct domain agent. Designed for extensibility — adding a new agent requires minimal changes.
-
+ 
 ### 5. Domain Agents
 Each agent handles a specific financial concern and composes a structured prompt for the LLM layer, enriched with user context and session history.
-
-### 6. SSE Streaming Layer
-Streams intermediate status updates and the final response back to the client in real-time using Server-Sent Events.
-
+ 
+| Agent | Responsibility |
+|---|---|
+| `portfolio_health.py` | Portfolio composition, concentration & health checks |
+| `market_reaserch.py` | Market conditions, sector trends & news analysis |
+| `risk_analysis.py` | Risk scoring, volatility & exposure evaluation |
+| `finance_calculator.py` | Financial metrics — returns, ratios, P&L |
+| `predictive_analysis.py` | Forecasting & predictive modelling |
+| `recommmedation.py` | Actionable investment recommendations |
+| `general_query.py` | Catch-all handler for general financial queries |
+| `stud_agent.py` | Research & study-oriented financial queries |
+| `support.py` | Fallback & support responses |
+| `llm_agent.py` | Core LLM interaction and prompt orchestration |
+| `base.py` | Abstract base class shared across all agents |
+ 
 ---
 
 ## Streaming (SSE)
