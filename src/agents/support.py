@@ -8,12 +8,12 @@ class SupportAgent(LLMFinanceAgent):
         super().__init__(
             name="customer_support",
             system_prompt="""
-You are Valura AI's customer support agent.
-
-Help users with login, account, linked bank, transaction history, and app usage issues.
-Do not include investment, portfolio, risk, or financial advice fields.
-Return JSON only.
-""",
+                You are Finance AI's customer support agent.
+                
+                Help users with login, account, linked bank, transaction history, and app usage issues.
+                Do not include investment, portfolio, risk, or financial advice fields.
+                Return JSON only.
+            """,
         )
 
     def run(self, query, user_context, intent, classification=None):
