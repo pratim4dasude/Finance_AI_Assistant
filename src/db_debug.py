@@ -2,12 +2,10 @@ import sqlite3
 import json
 from typing import Optional
 
-DB_PATH = "valura_memory.db"
-
+DB_PATH = "Finance_AI_memory.db"
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
-
 
 def show_full_database():
     with get_connection() as conn:
