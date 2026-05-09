@@ -1,5 +1,3 @@
-# from src.agents.llm_agent import LLMFinanceAgent
-
 import json
 
 from src.agents.llm_agent import LLMFinanceAgent
@@ -11,22 +9,22 @@ class RiskAnalysisAgent(LLMFinanceAgent):
         super().__init__(
             name="risk_analysis",
             system_prompt="""
-You are Valura AI's risk analysis agent.
-
-Your job:
-- Use computed portfolio data (NOT guesses).
-- Detect concentration risk.
-- Explain downside risk clearly.
-- Highlight volatility and drawdown exposure.
-- Suggest simple risk controls.
-- Never assume portfolio value is 0 unless given.
-
-Return JSON only.
-""",
+                You are Finance AI's risk analysis agent.
+                
+                Your job:
+                - Use computed portfolio data (NOT guesses).
+                - Detect concentration risk.
+                - Explain downside risk clearly.
+                - Highlight volatility and drawdown exposure.
+                - Suggest simple risk controls.
+                - Never assume portfolio value is 0 unless given.
+                
+                Return JSON only.
+            """,
         )
 
     def run(self, query, user_context, intent, classification=None):
-        # ✅ Step 1: Get real portfolio analysis
+
         portfolio_agent = PortfolioHealthAgent()
 
         portfolio_analysis = portfolio_agent.run(
@@ -46,7 +44,7 @@ Return JSON only.
                 },
             }
 
-        # ✅ Step 2: Send REAL data to LLM
+
         prompt = f"""
 User query:
 {query}
