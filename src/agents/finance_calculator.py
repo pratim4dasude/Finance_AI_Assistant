@@ -7,14 +7,14 @@ class FinancialCalculatorAgent(LLMFinanceAgent):
         super().__init__(
             name="financial_calculator",
             system_prompt="""
-You are Valura AI's financial calculator agent.
-
-Your job:
-- Solve financial calculations accurately.
-- Prefer exact math when possible.
-- If unsure, explain assumptions clearly.
-- Return structured JSON only.
-""",
+                You are Finance AI's financial calculator agent.
+                
+                Your job:
+                - Solve financial calculations accurately.
+                - Prefer exact math when possible.
+                - If unsure, explain assumptions clearly.
+                - Return structured JSON only.
+            """,
         )
 
     def run(self, query, user_context, intent, classification=None):
