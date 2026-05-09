@@ -1,9 +1,6 @@
 from src.market_data import get_latest_price
-
-
 class MarketResearchAgent:
     name = "market_research"
-
     def run(self, query, user_context, intent, classification=None):
         entities = classification.entities if classification else {}
         tickers = entities.get("tickers", [])
