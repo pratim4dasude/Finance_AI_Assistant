@@ -11,7 +11,7 @@ from src.memory import memory_store
 from dotenv import load_dotenv
 load_dotenv()
 
-app = FastAPI(title="Valura AI Microservice")
+app = FastAPI(title="Finance AI Microservice")
 
 classifier = IntentClassifier()
 router = AgentRouter()
