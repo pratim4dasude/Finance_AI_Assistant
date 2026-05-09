@@ -2,7 +2,7 @@
 Skeleton test for classifier routing accuracy on the labeled gold set.
 
 Wire your classifier import and remove the @pytest.mark.skip decorator.
-The success threshold (≥ 85%) is from ASSIGNMENT.md.
+The success threshold (≥ 85%) is from working.md.
 
 This test demonstrates the entity matcher pattern. The matcher rules are in
 fixtures/README.md — follow them or document any deviations in your README.
