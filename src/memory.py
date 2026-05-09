@@ -1,81 +1,3 @@
-# import re
-# from collections import defaultdict
-# from typing import Dict, List, Optional
-#
-#
-# class InMemorySessionStore:
-#     def __init__(self):
-#         self.sessions: Dict[str, List[dict]] = defaultdict(list)
-#         self.session_state: Dict[str, dict] = defaultdict(dict)
-#
-#     def add_turn(self, session_id: str, role: str, content: str):
-#         self.sessions[session_id].append(
-#             {
-#                 "role": role,
-#                 "content": content,
-#             }
-#         )
-#
-#         if role == "user":
-#             ticker = self._extract_ticker(content)
-#             if ticker:
-#                 self.session_state[session_id]["last_ticker"] = ticker
-#
-#     def get_history(self, session_id: str, limit: int = 6):
-#         return self.sessions[session_id][-limit:]
-#
-#     def get_state(self, session_id: str):
-#         return self.session_state[session_id]
-#
-#     def resolve_follow_up(self, session_id: str, query: str) -> str:
-#         """
-#         Resolves simple follow-ups like:
-#         - What about its risk?
-#         - How is it doing?
-#         - Should I buy more?
-#         """
-#         state = self.get_state(session_id)
-#         last_ticker = state.get("last_ticker")
-#
-#         if not last_ticker:
-#             return query
-#
-#         q = query.lower()
-#
-#         follow_up_words = ["it", "its", "that", "this", "stock", "company"]
-#
-#         if any(word in q.split() for word in follow_up_words):
-#             return f"{query} Context: the user is referring to {last_ticker}."
-#
-#         return query
-#
-#     def _extract_ticker(self, text: str) -> Optional[str]:
-#         ticker_map = {
-#             "apple": "AAPL",
-#             "aapl": "AAPL",
-#             "nvidia": "NVDA",
-#             "nvda": "NVDA",
-#             "tesla": "TSLA",
-#             "tsla": "TSLA",
-#             "asml": "ASML",
-#             "microsoft": "MSFT",
-#             "msft": "MSFT",
-#             "google": "GOOGL",
-#             "alphabet": "GOOGL",
-#             "amazon": "AMZN",
-#         }
-#
-#         text_lower = text.lower()
-#
-#         for key, ticker in ticker_map.items():
-#             if re.search(rf"\b{re.escape(key)}\b", text_lower):
-#                 return ticker
-#
-#         return None
-#
-#
-# memory_store = InMemorySessionStore()
-
 
 import json
 import os
@@ -86,7 +8,7 @@ from typing import List, Optional
 
 class SQLiteSessionStore:
     def __init__(self):
-        db_url = os.getenv("DATABASE_URL", "sqlite:///./valura_memory.db")
+        db_url = os.getenv("DATABASE_URL", "sqlite:///./Finance_AI_memory.db")
         self.db_path = db_url.replace("sqlite:///", "")
         self._init_db()
 
